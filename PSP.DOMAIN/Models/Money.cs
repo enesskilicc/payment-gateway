@@ -12,7 +12,7 @@ namespace PSP.DOMAIN.Models
         public Money(long amount, string currency)
         {
             if (string.IsNullOrWhiteSpace(currency))
-                throw new ArgumentException("Para birimi belirtilmelidir.", nameof(currency));
+                throw new ArgumentException("Para birimi belirtilmemiş!", nameof(currency));
 
             if (currency.Length != 3 || !currency.All(char.IsAsciiLetterUpper))
                 throw new ArgumentException("Para birimi geçersiz!", nameof(currency));
@@ -25,7 +25,7 @@ namespace PSP.DOMAIN.Models
         public Money Add(Money other)
         {
             if (Currency != other.Currency)
-                throw new ArgumentException("Para birimleri eşleşmiyor.", nameof(other));
+                throw new ArgumentException("Para birimleri eşleşmiyor!", nameof(other));
 
             return new Money(checked(Amount + other.Amount), Currency);
         }
