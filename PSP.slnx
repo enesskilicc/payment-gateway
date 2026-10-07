@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/API/">
+    <Project Path="PSP.API/PSP.API.csproj" />
+  </Folder>
+  <Folder Name="/APPLICATION/">
+    <Project Path="PSP.APPLICATION/PSP.APPLICATION.csproj" Id="b0541990-6b0a-4d69-9d43-7170bc7fe4b1" />
+  </Folder>
+  <Folder Name="/DOMAIN/">
+    <Project Path="PSP.DOMAIN/PSP.DOMAIN.csproj" Id="7a2b112a-8538-4752-8276-288955babdae" />
+  </Folder>
+  <Folder Name="/INFRASTRUCTURE/">
+    <Project Path="PSP.INFRASTRUCTURE/PSP.INFRASTRUCTURE.csproj" Id="bc049a33-58c4-4b02-9f7d-7324c0947218" />
+  </Folder>
+  <Folder Name="/TEST/" />
+  <Folder Name="/TEST/DOMAIN/">
+    <Project Path="PSP.DOMAIN.TEST/PSP.DOMAIN.TEST.csproj" Id="93234267-2f7c-41a2-a775-34985169525d" />
+  </Folder>
+</Solution>
