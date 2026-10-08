@@ -1,8 +1,5 @@
 ﻿using PSP.DOMAIN.Enums;
 using PSP.DOMAIN.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PSP.DOMAIN.TEST.Models
 {
