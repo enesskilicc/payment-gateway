@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,6 +13,7 @@ namespace PSP.DOMAIN.Models
         public string KeyHash { get; private set; }
         public string Prefix { get; private set; }
         public DateTimeOffset CreatedAt { get; private set; }
+        public DateTimeOffset? RevokedAt { get; private set; }
 
         private ApiKey(Guid merchantId, string keyHash, string prefix)
         {
@@ -22,11 +24,19 @@ namespace PSP.DOMAIN.Models
             CreatedAt = DateTimeOffset.UtcNow;
         }
 
+        public void Revoke()
+        {
+            if (RevokedAt is not null)
+                throw new InvalidOperationException("Key zaten iptal edilmiş!");
+
+            RevokedAt = DateTimeOffset.UtcNow;
+        }
+
 
         public static (ApiKey apiKey, string plainKey) Generate(Guid merchantId)
         {
             byte[] randomBytes = RandomNumberGenerator.GetBytes(32);
-            string plainKey = "sk_test_" + Convert.ToBase64String(randomBytes);
+            string plainKey = "sk_test_" + Base64Url.EncodeToString(randomBytes);
             byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(plainKey));
             string keyHash = Convert.ToHexString(hashBytes);
             string prefix = plainKey.Substring(0, 12);
@@ -36,7 +46,7 @@ namespace PSP.DOMAIN.Models
 
         public bool Verify(string candidateKey)
         {
-            if (string.IsNullOrEmpty(candidateKey))
+            if (string.IsNullOrEmpty(candidateKey) || RevokedAt is not null)
                 return false;
 
             byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(candidateKey));

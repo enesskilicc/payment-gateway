@@ -35,9 +35,9 @@ namespace PSP.DOMAIN.TEST.Models
         [Fact]
         public void Generate_Prefix_IsFirst12CharsOfKey()
         {
-            var (apiKey,plainKey) = ApiKey.Generate(Guid.NewGuid());
+            var (apiKey, plainKey) = ApiKey.Generate(Guid.NewGuid());
 
-            Assert.Equal(plainKey.Substring(0,12),apiKey.Prefix);
+            Assert.Equal(plainKey.Substring(0, 12), apiKey.Prefix);
         }
 
         [Fact]
@@ -71,6 +71,51 @@ namespace PSP.DOMAIN.TEST.Models
             var result = apiKey.Verify(candidateKey);
 
             Assert.False(result);
+        }
+
+
+        [Fact]
+        public void Revoke_ActiveKey_SetsRevokedAt()
+        {
+            var (apiKey,_) = ApiKey.Generate(Guid.NewGuid());
+
+            apiKey.Revoke();
+
+            Assert.NotNull(apiKey.RevokedAt);
+
+        }
+
+        [Fact]
+        public void Verify_RevokedKey_ReturnsFalse()
+        {
+           var (apiKey,plainKey) = ApiKey.Generate(Guid.NewGuid());
+
+            apiKey.Revoke();
+
+            var result = apiKey.Verify(plainKey);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Revoke_AlreadyRevoked_Throws()
+        {
+            var (apiKey, _) = ApiKey.Generate(Guid.NewGuid());
+
+            apiKey.Revoke();
+
+            Assert.Throws<InvalidOperationException>(() => apiKey.Revoke());
+        }
+
+        [Theory]
+        [InlineData("+")]
+        [InlineData("/")]
+        [InlineData("=")]
+        public void Generate_PlainKey_IsUrlSafe(string forbiddenChar)
+        {
+            var (_, plainKey) = ApiKey.Generate(Guid.NewGuid());
+
+            Assert.DoesNotContain(forbiddenChar,plainKey);
         }
     }
 }
