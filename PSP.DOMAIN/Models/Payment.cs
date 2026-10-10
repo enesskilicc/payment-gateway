@@ -13,8 +13,9 @@ namespace PSP.DOMAIN.Models
         public PaymentStatus Status { get; private set; }
         public DateTimeOffset CreatedAt { get; private set; }
         public Money CapturedAmount { get; private set; }
-        public Money RefundedAmount { get; private set; }
+        public Money RefundedAmount { get; private set; } = default!;
 
+        private Payment() { }
 
         public Payment(Guid merchantId, Money amount)
         {
