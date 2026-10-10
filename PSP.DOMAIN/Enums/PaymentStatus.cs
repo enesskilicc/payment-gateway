@@ -11,6 +11,7 @@ namespace PSP.DOMAIN.Enums
         Captured = 3,
         Voided = 4,
         Refunded = 5,
-        Failed = 6
+        Failed = 6,
+        PartiallyRefunded = 7
     }
 }

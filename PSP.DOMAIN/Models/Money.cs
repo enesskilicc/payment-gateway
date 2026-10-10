@@ -29,5 +29,20 @@ namespace PSP.DOMAIN.Models
 
             return new Money(checked(Amount + other.Amount), Currency);
         }
+        public Money Subtract(Money other)
+        {
+            if (Currency != other.Currency)
+                throw new ArgumentException("Para birimleri eşleşmiyor!", nameof(other));
+
+            return new Money(checked(Amount - other.Amount), Currency);
+        }
+
+        public bool IsGreaterThan(Money other)
+        {
+            if (Currency != other.Currency)
+                throw new ArgumentException("Para birimleri eşleşmiyor!", nameof(other));
+
+            return Amount > other.Amount;
+        }
     }
 }

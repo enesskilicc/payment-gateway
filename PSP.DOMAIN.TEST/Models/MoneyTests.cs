@@ -81,5 +81,52 @@ namespace PSP.DOMAIN.TEST.Models
 
             Assert.Throws<OverflowException>(() => max.Add(one));
         }
+
+
+        [Fact]
+        public void Subtract_SameCurrency_ReturnsDifference()
+        {
+            var money = new Money(1000, "TRY");
+            var money2 = new Money(300, "TRY");
+            var expected = new Money(700, "TRY");
+            var subtractedVal = money.Subtract(money2);
+
+            Assert.Equal(expected, subtractedVal);
+        }
+
+        [Fact]
+        public void Subtract_DifferentCurrency_Throws()
+        {
+            var money = new Money(1000, "TRY");
+            var money2 = new Money(300, "USD");
+
+            Assert.Throws<ArgumentException>(() => money.Subtract(money2));
+        }
+
+        [Fact]
+        public void IsGreaterThan_LargerAmount_ReturnsTrue()
+        {
+            var money = new Money(1000, "TRY");
+            var money2 = new Money(300, "TRY");
+
+            Assert.True(money.IsGreaterThan(money2));
+        }
+
+        [Fact]
+        public void IsGreaterThan_EqualAmount_ReturnsFalse()
+        {
+            var money = new Money(500, "TRY");
+            var money2 = new Money(500, "TRY");
+
+            Assert.False(money.IsGreaterThan(money2));
+        }
+        [Fact]
+        public void IsGreaterThan_DifferentCurrency_Throws()
+        {
+            var money = new Money(500, "TRY");
+            var money2 = new Money(100, "USD");
+
+            Assert.Throws<ArgumentException>(() => money.IsGreaterThan(money2));
+        }
     }
 }

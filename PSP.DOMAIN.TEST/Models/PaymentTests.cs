@@ -77,7 +77,7 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
 
             payment.Authorize();
-            payment.Capture();
+            payment.Capture(payment.Amount);
 
             Assert.Throws<InvalidOperationException>(() => payment.Authorize());
 
@@ -101,7 +101,7 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Authorize();
 
-            payment.Capture();
+            payment.Capture(payment.Amount);
 
             Assert.Equal(PaymentStatus.Captured, payment.Status);
         }
@@ -111,7 +111,7 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Capture());
+            Assert.Throws<InvalidOperationException>(() => payment.Capture(payment.Amount));
         }
 
         [Fact]
@@ -119,9 +119,9 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
             payment.Authorize();
-            payment.Capture();
+            payment.Capture(payment.Amount);
 
-            Assert.Throws<InvalidOperationException>(() => payment.Capture());
+            Assert.Throws<InvalidOperationException>(() => payment.Capture(payment.Amount));
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace PSP.DOMAIN.TEST.Models
             payment.Authorize();
             payment.Void();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Capture());
+            Assert.Throws<InvalidOperationException>(() => payment.Capture(payment.Amount));
         }
         #endregion
 
@@ -160,7 +160,7 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
             payment.Authorize();
-            payment.Capture();
+            payment.Capture(payment.Amount);
 
             Assert.Throws<InvalidOperationException>(() => payment.Void());
         }
@@ -172,9 +172,9 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
             payment.Authorize();
-            payment.Capture();
+            payment.Capture(payment.Amount);
 
-            payment.Refund();
+            payment.Refund(payment.Amount);
 
             Assert.Equal(PaymentStatus.Refunded, payment.Status);
         }
@@ -184,7 +184,7 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Refund());
+            Assert.Throws<InvalidOperationException>(() => payment.Refund(payment.Amount));
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Authorize();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Refund());
+            Assert.Throws<InvalidOperationException>(() => payment.Refund(payment.Amount));
         }
 
         [Fact]
@@ -201,10 +201,10 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
             payment.Authorize();
-            payment.Capture();
-            payment.Refund();
+            payment.Capture(payment.Amount);
+            payment.Refund(payment.Amount);
 
-            Assert.Throws<InvalidOperationException>(() => payment.Refund());
+            Assert.Throws<InvalidOperationException>(() => payment.Refund(payment.Amount));
         }
         #endregion
 
@@ -237,5 +237,79 @@ namespace PSP.DOMAIN.TEST.Models
             Assert.Throws<InvalidOperationException>(() => payment.Fail());
         }
         #endregion
+
+        [Fact]
+        public void Capture_PartialAmount_SetsCapturedAmount()
+        {
+            var merchantId = Guid.NewGuid();
+            var amount = new Money(100, "TRY");
+            var payment = new Payment(merchantId, amount);
+            payment.Authorize();
+            payment.Capture(new Money(60,"TRY"));
+
+            Assert.Equal(PaymentStatus.Captured, payment.Status);
+        }
+
+
+        [Fact]
+        public void Capture_AmountExceedsAuthorized_Throws()
+        {
+            var merchantId = Guid.NewGuid();
+            var amount = new Money(60, "TRY");
+            var payment = new Payment(merchantId, amount);
+
+            var newAmount = new Money(150, "TRY");
+            payment.Authorize();
+            Assert.Throws<ArgumentException>(() => payment.Capture(newAmount));
+        }
+
+        [Fact]
+        public void Refund_PartialAmount_StatusIsPartiallyRefunded()
+        {
+            var merchantId = Guid.NewGuid();
+            var amount = new Money(100, "TRY");
+            var payment = new Payment(merchantId, amount);
+            payment.Authorize();
+            payment.Capture(amount);
+
+            var refundAmount = new Money(30, "TRY");
+
+            payment.Refund(refundAmount);
+
+            Assert.Equal(PaymentStatus.PartiallyRefunded, payment.Status);
+            Assert.Equal(payment.RefundedAmount, refundAmount);
+
+        }
+
+        [Fact]
+        public void Refund_RemainingAmount_StatusIsRefunded()
+        {
+            var merchantId = Guid.NewGuid();
+            var amount = new Money(100, "TRY");
+            var payment = new Payment(merchantId, amount);
+            payment.Authorize();
+            payment.Capture(amount);
+            var ref1 = new Money(30, "TRY");
+            var ref2 = new Money(70, "TRY");
+
+            payment.Refund(ref1);
+            payment.Refund(ref2);
+
+            Assert.Equal(PaymentStatus.Refunded, payment.Status);
+        }
+
+        [Fact]
+        public void Refund_AmountExceedsRefundable_Throws()
+        {
+            var merchantId = Guid.NewGuid();
+            var amount = new Money(100, "TRY");
+            var payment = new Payment(merchantId, amount);
+            payment.Authorize();
+            payment.Capture(amount);
+
+            payment.Refund(new Money(30, "TRY"));
+
+            Assert.Throws<ArgumentException>(() => payment.Refund(new Money(80,"TRY")));
+        }
     }
 }
