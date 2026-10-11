@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PSP.DOMAIN.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PSP.INFRASTRUCTURE.Persistence.Configurations
 {

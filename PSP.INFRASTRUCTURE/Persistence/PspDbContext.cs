@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PSP.APPLICATION.Abstractions;
 using PSP.DOMAIN.Models;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace PSP.INFRASTRUCTURE.Persistence
 {
-    public class PspDbContext : DbContext
+    public class PspDbContext : DbContext , IUnitOfWork
     {
         public PspDbContext(DbContextOptions<PspDbContext> options) : base(options)
         {
