@@ -1,4 +1,5 @@
-﻿using PSP.DOMAIN.Models;
+﻿using PSP.DOMAIN.Exceptions;
+using PSP.DOMAIN.Models;
 
 namespace PSP.DOMAIN.TEST.Models
 {
@@ -22,7 +23,8 @@ namespace PSP.DOMAIN.TEST.Models
         [InlineData("T1Y")]
         public void Constructor_InvalidCurrency_Throws(string currency)
         {
-            Assert.Throws<ArgumentException>(() => new Money(100, currency));
+            var ex = Assert.Throws<DomainValidationException>(() => new Money(100, currency));
+            Assert.Equal(DomainErrorCodes.InvalidCurrency, ex.Code);
         }
 
         [Fact]
@@ -54,7 +56,8 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var a = new Money(100, "TRY");
             var b = new Money(50, "USD");
-            Assert.Throws<ArgumentException>(() => a.Add(b));
+            var ex = Assert.Throws<DomainValidationException>(() => a.Add(b));
+            Assert.Equal(DomainErrorCodes.CurrencyMismatch, ex.Code);
 
         }
 
@@ -100,7 +103,8 @@ namespace PSP.DOMAIN.TEST.Models
             var money = new Money(1000, "TRY");
             var money2 = new Money(300, "USD");
 
-            Assert.Throws<ArgumentException>(() => money.Subtract(money2));
+            var ex = Assert.Throws<DomainValidationException>(() => money.Subtract(money2));
+            Assert.Equal(DomainErrorCodes.CurrencyMismatch, ex.Code);
         }
 
         [Fact]
@@ -126,7 +130,8 @@ namespace PSP.DOMAIN.TEST.Models
             var money = new Money(500, "TRY");
             var money2 = new Money(100, "USD");
 
-            Assert.Throws<ArgumentException>(() => money.IsGreaterThan(money2));
+            var ex = Assert.Throws<DomainValidationException>(() => money.IsGreaterThan(money2));
+            Assert.Equal(DomainErrorCodes.CurrencyMismatch, ex.Code);
         }
     }
 }

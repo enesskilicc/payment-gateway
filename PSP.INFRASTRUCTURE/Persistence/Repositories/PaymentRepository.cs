@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PSP.APPLICATION.Abstractions;
 using PSP.DOMAIN.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PSP.INFRASTRUCTURE.Persistence.Repositories
 {

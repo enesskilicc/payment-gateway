@@ -1,8 +1,5 @@
 ﻿using PSP.DOMAIN.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
+using PSP.DOMAIN.Exceptions;
 namespace PSP.DOMAIN.Models
 {
     public class Payment
@@ -22,7 +19,7 @@ namespace PSP.DOMAIN.Models
             if (amount is null)
                 throw new ArgumentNullException(nameof(amount), "Tutar bilgisi eksik!");
             if (amount.Amount <= 0)
-                throw new ArgumentException("Tutar bilgisi hatalı!", nameof(amount));
+                throw new DomainValidationException(DomainErrorCodes.InvalidAmount,"Tutar bilgisi hatalı!");
 
             Id = Guid.NewGuid();
             MerchantId = merchantId;
@@ -36,7 +33,7 @@ namespace PSP.DOMAIN.Models
         public void Authorize()
         {
             if (Status != PaymentStatus.Pending)
-                throw new InvalidOperationException("İşlem otorizasyon için uygun değil!");
+                throw new DomainConflictException(DomainErrorCodes.PaymentNotAuthorizable,"İşlem otorizasyon için uygun değil!");
 
             Status = PaymentStatus.Authorized;
         }
@@ -47,13 +44,13 @@ namespace PSP.DOMAIN.Models
                 throw new ArgumentNullException(nameof(amount), "Tutar bilgisi eksik!");
 
             if (amount.Amount <= 0)
-                throw new ArgumentException("Geçersiz tutar!", nameof(amount));
+                throw new DomainValidationException(DomainErrorCodes.InvalidAmount,"Geçersiz tutar!");
 
             if (Status != PaymentStatus.Authorized)
-                throw new InvalidOperationException("Yalnızca otorize edilmiş ödeme tahsil edilebilir!");
+                throw new DomainConflictException(DomainErrorCodes.PaymentNotCapturable,"Yalnızca otorize edilmiş ödeme tahsil edilebilir!");
 
             if (amount.IsGreaterThan(Amount))
-                throw new ArgumentException("Tahsil tutarı bloke edilen tutardan büyük olamaz!", nameof(amount));
+                throw new DomainValidationException(DomainErrorCodes.AmountExceedsAuthorized, "Tahsil tutarı bloke edilen tutardan büyük olamaz!");
 
             CapturedAmount = amount;
             Status = PaymentStatus.Captured;
@@ -62,7 +59,7 @@ namespace PSP.DOMAIN.Models
         public void Void()
         {
             if (Status != PaymentStatus.Authorized)
-                throw new InvalidOperationException("Bloke kaldırma işlemi için otorizasyon yapılmamış!");
+                throw new DomainConflictException(DomainErrorCodes.PaymentNotVoidable, "Bloke kaldırma işlemi için otorizasyon yapılmamış!");
 
             Status = PaymentStatus.Voided;
         }
@@ -73,15 +70,15 @@ namespace PSP.DOMAIN.Models
                 throw new ArgumentNullException(nameof(amount), "Tutar bilgisi eksik!");
 
             if (amount.Amount <= 0)
-                throw new ArgumentException("Geçersiz tutar!", nameof(amount));
+                throw new DomainValidationException(DomainErrorCodes.InvalidAmount, "Geçersiz tutar!");
 
             if (Status != PaymentStatus.Captured && Status != PaymentStatus.PartiallyRefunded)
-                throw new InvalidOperationException("Tahsil edilmemiş işlem iade edilemez!");
+                throw new DomainConflictException(DomainErrorCodes.PaymentNotRefundable, "Tahsil edilmemiş işlem iade edilemez!");
 
             var refundable = CapturedAmount.Subtract(RefundedAmount);
 
             if (amount.IsGreaterThan(refundable))
-                throw new ArgumentException("İade edilecek tutar kalan iade tutarından büyük!", nameof(amount));
+                throw new DomainValidationException(DomainErrorCodes.AmountExceedsRefundable, "İade edilecek tutar kalan iade tutarından büyük!");
 
             RefundedAmount = RefundedAmount.Add(amount);
 
@@ -95,7 +92,7 @@ namespace PSP.DOMAIN.Models
         public void Fail()
         {
             if (Status != PaymentStatus.Pending)
-                throw new InvalidOperationException("İşlem zaten başlamış!");
+                throw new DomainConflictException(DomainErrorCodes.PaymentAlreadyProcessed, "İşlem zaten başlamış!");
 
             Status = PaymentStatus.Failed;
         }

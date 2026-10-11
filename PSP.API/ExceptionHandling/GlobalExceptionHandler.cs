@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using PSP.DOMAIN.Exceptions;
 
 namespace PSP.API.ExceptionHandling
 {
@@ -7,7 +8,6 @@ namespace PSP.API.ExceptionHandling
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
         private readonly IProblemDetailsService _problemDetailsService;
-
         public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IProblemDetailsService problemDetailsService)
         {
             _logger = logger;
@@ -18,8 +18,8 @@ namespace PSP.API.ExceptionHandling
         {
             var (statusCode, title) = exception switch
             {
-                ArgumentException => (StatusCodes.Status400BadRequest, "Geçersiz parametre!"),
-                InvalidOperationException => (StatusCodes.Status409Conflict, "Geçersiz işlem!"),
+                DomainValidationException => (StatusCodes.Status400BadRequest, "Geçersiz istek!"),
+                DomainConflictException => (StatusCodes.Status409Conflict, "İşlem mevcut durumla çakışıyor!"),
                 _ => (StatusCodes.Status500InternalServerError, "Sunucu hatası!")
 
             };
@@ -34,9 +34,12 @@ namespace PSP.API.ExceptionHandling
                 Status = statusCode,
                 Title = title,
                 Detail = statusCode == StatusCodes.Status500InternalServerError
-                            ? "İşleminiz gerçekleştirilirken beklenmeyen bir hata oluştu!"
-                            : exception.Message
+                ? "İşleminiz gerçekleştirilirken beklenmeyen bir hata oluştu!"
+                : exception.Message
             };
+
+            if (exception is DomainException domainException)
+                problemDetails.Extensions["code"] = domainException.Code;
 
             httpContext.Response.StatusCode = statusCode;
 

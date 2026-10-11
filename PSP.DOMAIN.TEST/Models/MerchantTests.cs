@@ -1,4 +1,5 @@
 ﻿using PSP.DOMAIN.Enums;
+using PSP.DOMAIN.Exceptions;
 using PSP.DOMAIN.Models;
 
 namespace PSP.DOMAIN.TEST.Models
@@ -22,14 +23,16 @@ namespace PSP.DOMAIN.TEST.Models
         [InlineData(" ")]
         public void Constructor_Merchant_InvalidName(string name)
         {
-            Assert.Throws<ArgumentException>(() => new Merchant(name));
+            var ex = Assert.Throws<DomainValidationException>(() => new Merchant(name));
+            Assert.Equal(DomainErrorCodes.InvalidMerchantName, ex.Code);
         }
         [Fact]
         public void Constructor_Merchant_InvalidName_101Chars()
         {
             var name = new string('a', 101);
 
-            Assert.Throws<ArgumentException>(() => new Merchant(name));
+            var ex = Assert.Throws<DomainValidationException>(() => new Merchant(name));
+            Assert.Equal(DomainErrorCodes.InvalidMerchantName, ex.Code);
         }
 
         [Fact]
@@ -49,7 +52,8 @@ namespace PSP.DOMAIN.TEST.Models
 
             merchant.Suspend();
 
-            Assert.Throws<InvalidOperationException>(() => merchant.Suspend());
+            var ex = Assert.Throws<DomainConflictException>(() => merchant.Suspend());
+            Assert.Equal(DomainErrorCodes.MerchantNotActive, ex.Code);
         }
 
         [Fact]
@@ -68,7 +72,8 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var merchant = new Merchant("Test Merchant");
 
-            Assert.Throws<InvalidOperationException>(() => merchant.Activate());
+            var ex = Assert.Throws<DomainConflictException>(() => merchant.Activate());
+            Assert.Equal(DomainErrorCodes.MerchantNotSuspended, ex.Code);
         }
 
 
@@ -89,7 +94,8 @@ namespace PSP.DOMAIN.TEST.Models
 
             merchant.Delete();
 
-            Assert.Throws<InvalidOperationException>(() => merchant.Delete());
+            var ex = Assert.Throws<DomainConflictException>(() => merchant.Delete());
+            Assert.Equal(DomainErrorCodes.MerchantAlreadyDeleted, ex.Code);
         }
 
         [Fact]
@@ -99,7 +105,8 @@ namespace PSP.DOMAIN.TEST.Models
 
             merchant.Delete();
 
-            Assert.Throws<InvalidOperationException>(() => merchant.Activate());
+            var ex = Assert.Throws<DomainConflictException>(() => merchant.Activate());
+            Assert.Equal(DomainErrorCodes.MerchantNotSuspended, ex.Code);
         }
 
         [Fact]

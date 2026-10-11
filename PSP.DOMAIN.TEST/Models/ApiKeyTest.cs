@@ -1,4 +1,5 @@
-﻿using PSP.DOMAIN.Models;
+﻿using PSP.DOMAIN.Exceptions;
+using PSP.DOMAIN.Models;
 
 namespace PSP.DOMAIN.TEST.Models
 {
@@ -77,7 +78,7 @@ namespace PSP.DOMAIN.TEST.Models
         [Fact]
         public void Revoke_ActiveKey_SetsRevokedAt()
         {
-            var (apiKey,_) = ApiKey.Generate(Guid.NewGuid());
+            var (apiKey, _) = ApiKey.Generate(Guid.NewGuid());
 
             apiKey.Revoke();
 
@@ -88,7 +89,7 @@ namespace PSP.DOMAIN.TEST.Models
         [Fact]
         public void Verify_RevokedKey_ReturnsFalse()
         {
-           var (apiKey,plainKey) = ApiKey.Generate(Guid.NewGuid());
+            var (apiKey, plainKey) = ApiKey.Generate(Guid.NewGuid());
 
             apiKey.Revoke();
 
@@ -104,7 +105,8 @@ namespace PSP.DOMAIN.TEST.Models
 
             apiKey.Revoke();
 
-            Assert.Throws<InvalidOperationException>(() => apiKey.Revoke());
+            var ex = Assert.Throws<DomainConflictException>(() => apiKey.Revoke());
+            Assert.Equal(DomainErrorCodes.ApiKeyAlreadyRevoked, ex.Code);
         }
 
         [Theory]
@@ -115,7 +117,7 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var (_, plainKey) = ApiKey.Generate(Guid.NewGuid());
 
-            Assert.DoesNotContain(forbiddenChar,plainKey);
+            Assert.DoesNotContain(forbiddenChar, plainKey);
         }
     }
 }

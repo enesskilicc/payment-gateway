@@ -1,9 +1,6 @@
 ﻿using PSP.DOMAIN.Enums;
+using PSP.DOMAIN.Exceptions;
 using PSP.DOMAIN.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace PSP.DOMAIN.TEST.Models
 {
@@ -25,7 +22,8 @@ namespace PSP.DOMAIN.TEST.Models
             var merchantId = Guid.NewGuid();
             var amount = new Money(minorUnit, "TRY");
 
-            Assert.Throws<ArgumentException>(() => new Payment(merchantId, amount));
+            var ex = Assert.Throws<DomainValidationException>(() => new Payment(merchantId, amount));
+            Assert.Equal(DomainErrorCodes.InvalidAmount, ex.Code);
 
         }
 
@@ -68,7 +66,8 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Authorize();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Authorize());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Authorize());
+            Assert.Equal(DomainErrorCodes.PaymentNotAuthorizable, ex.Code);
         }
 
         [Fact]
@@ -79,7 +78,8 @@ namespace PSP.DOMAIN.TEST.Models
             payment.Authorize();
             payment.Capture(payment.Amount);
 
-            Assert.Throws<InvalidOperationException>(() => payment.Authorize());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Authorize());
+            Assert.Equal(DomainErrorCodes.PaymentNotAuthorizable, ex.Code);
 
         }
 
@@ -89,7 +89,8 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Fail();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Authorize());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Authorize());
+            Assert.Equal(DomainErrorCodes.PaymentNotAuthorizable, ex.Code);
         }
 
         #endregion
@@ -111,7 +112,8 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Capture(payment.Amount));
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Capture(payment.Amount));
+            Assert.Equal(DomainErrorCodes.PaymentNotCapturable, ex.Code);
         }
 
         [Fact]
@@ -121,7 +123,8 @@ namespace PSP.DOMAIN.TEST.Models
             payment.Authorize();
             payment.Capture(payment.Amount);
 
-            Assert.Throws<InvalidOperationException>(() => payment.Capture(payment.Amount));
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Capture(payment.Amount));
+            Assert.Equal(DomainErrorCodes.PaymentNotCapturable, ex.Code);
         }
 
         [Fact]
@@ -131,7 +134,8 @@ namespace PSP.DOMAIN.TEST.Models
             payment.Authorize();
             payment.Void();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Capture(payment.Amount));
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Capture(payment.Amount));
+            Assert.Equal(DomainErrorCodes.PaymentNotCapturable, ex.Code);
         }
         #endregion
 
@@ -152,7 +156,8 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Void());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Void());
+            Assert.Equal(DomainErrorCodes.PaymentNotVoidable, ex.Code);
         }
 
         [Fact]
@@ -162,7 +167,8 @@ namespace PSP.DOMAIN.TEST.Models
             payment.Authorize();
             payment.Capture(payment.Amount);
 
-            Assert.Throws<InvalidOperationException>(() => payment.Void());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Void());
+            Assert.Equal(DomainErrorCodes.PaymentNotVoidable, ex.Code);
         }
         #endregion
 
@@ -184,7 +190,8 @@ namespace PSP.DOMAIN.TEST.Models
         {
             var payment = CreatePayment();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Refund(payment.Amount));
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Refund(payment.Amount));
+            Assert.Equal(DomainErrorCodes.PaymentNotRefundable, ex.Code);
         }
 
         [Fact]
@@ -193,7 +200,8 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Authorize();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Refund(payment.Amount));
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Refund(payment.Amount));
+            Assert.Equal(DomainErrorCodes.PaymentNotRefundable, ex.Code);
         }
 
         [Fact]
@@ -204,7 +212,8 @@ namespace PSP.DOMAIN.TEST.Models
             payment.Capture(payment.Amount);
             payment.Refund(payment.Amount);
 
-            Assert.Throws<InvalidOperationException>(() => payment.Refund(payment.Amount));
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Refund(payment.Amount));
+            Assert.Equal(DomainErrorCodes.PaymentNotRefundable, ex.Code);
         }
         #endregion
 
@@ -225,7 +234,8 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Authorize();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Fail());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Fail());
+            Assert.Equal(DomainErrorCodes.PaymentAlreadyProcessed, ex.Code);
         }
 
         [Fact]
@@ -234,7 +244,8 @@ namespace PSP.DOMAIN.TEST.Models
             var payment = CreatePayment();
             payment.Fail();
 
-            Assert.Throws<InvalidOperationException>(() => payment.Fail());
+            var ex = Assert.Throws<DomainConflictException>(() => payment.Fail());
+            Assert.Equal(DomainErrorCodes.PaymentAlreadyProcessed, ex.Code);
         }
         #endregion
 
@@ -245,7 +256,7 @@ namespace PSP.DOMAIN.TEST.Models
             var amount = new Money(100, "TRY");
             var payment = new Payment(merchantId, amount);
             payment.Authorize();
-            payment.Capture(new Money(60,"TRY"));
+            payment.Capture(new Money(60, "TRY"));
 
             Assert.Equal(PaymentStatus.Captured, payment.Status);
         }
@@ -260,7 +271,8 @@ namespace PSP.DOMAIN.TEST.Models
 
             var newAmount = new Money(150, "TRY");
             payment.Authorize();
-            Assert.Throws<ArgumentException>(() => payment.Capture(newAmount));
+            var ex = Assert.Throws<DomainValidationException>(() => payment.Capture(newAmount));
+            Assert.Equal(DomainErrorCodes.AmountExceedsAuthorized, ex.Code);
         }
 
         [Fact]
@@ -309,7 +321,8 @@ namespace PSP.DOMAIN.TEST.Models
 
             payment.Refund(new Money(30, "TRY"));
 
-            Assert.Throws<ArgumentException>(() => payment.Refund(new Money(80,"TRY")));
+            var ex = Assert.Throws<DomainValidationException>(() => payment.Refund(new Money(80, "TRY")));
+            Assert.Equal(DomainErrorCodes.AmountExceedsRefundable, ex.Code);
         }
     }
 }

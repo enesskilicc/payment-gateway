@@ -1,6 +1,5 @@
-﻿using System;
+﻿using PSP.DOMAIN.Exceptions;
 using System.Buffers.Text;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -27,7 +26,7 @@ namespace PSP.DOMAIN.Models
         public void Revoke()
         {
             if (RevokedAt is not null)
-                throw new InvalidOperationException("Key zaten iptal edilmiş!");
+                throw new DomainConflictException(DomainErrorCodes.ApiKeyAlreadyRevoked,"Key zaten iptal edilmiş!");
 
             RevokedAt = DateTimeOffset.UtcNow;
         }

@@ -1,4 +1,5 @@
 ﻿using PSP.DOMAIN.Enums;
+using PSP.DOMAIN.Exceptions;
 
 namespace PSP.DOMAIN.Models
 {
@@ -13,10 +14,10 @@ namespace PSP.DOMAIN.Models
         public Merchant(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Merchant ismi geçersiz!", nameof(name));
+                throw new DomainValidationException(DomainErrorCodes.InvalidMerchantName,"Merchant ismi geçersiz!");
 
             if(name.Length > 100)
-                throw new ArgumentException("Merchant ismi çok uzun!", nameof(name));
+                throw new DomainValidationException(DomainErrorCodes.InvalidMerchantName, "Merchant ismi çok uzun!");
 
             Id = Guid.NewGuid();
             Name = name;
@@ -27,7 +28,7 @@ namespace PSP.DOMAIN.Models
         public void Suspend()
         {
             if(Status != MerchantStatus.Active)
-                throw new InvalidOperationException("Aktif olmayan merchant askıya alınamaz!");
+                throw new DomainConflictException(DomainErrorCodes.MerchantNotActive,"Aktif olmayan merchant askıya alınamaz!");
 
             Status = MerchantStatus.Suspended;
         }
@@ -35,7 +36,7 @@ namespace PSP.DOMAIN.Models
         public void Activate()
         {
             if (Status != MerchantStatus.Suspended)
-                throw new InvalidOperationException("Askıya alınmamış merchant aktif edilemez!");
+                throw new DomainConflictException(DomainErrorCodes.MerchantNotSuspended,"Askıya alınmamış merchant aktif edilemez!");
 
             Status = MerchantStatus.Active;
         }
@@ -43,7 +44,7 @@ namespace PSP.DOMAIN.Models
         public void Delete()
         {
             if (Status == MerchantStatus.Deleted)
-                throw new InvalidOperationException("Bu merchant zaten silinmiş!");
+                throw new DomainConflictException(DomainErrorCodes.MerchantAlreadyDeleted,"Bu merchant zaten silinmiş!");
 
             Status = MerchantStatus.Deleted;
         }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using PSP.DOMAIN.Exceptions;
 
 namespace PSP.DOMAIN.Models
 {
@@ -12,10 +10,10 @@ namespace PSP.DOMAIN.Models
         public Money(long amount, string currency)
         {
             if (string.IsNullOrWhiteSpace(currency))
-                throw new ArgumentException("Para birimi belirtilmemiş!", nameof(currency));
+                throw new DomainValidationException(DomainErrorCodes.InvalidCurrency, "Para birimi belirtilmemiş!");
 
             if (currency.Length != 3 || !currency.All(char.IsAsciiLetterUpper))
-                throw new ArgumentException("Para birimi geçersiz!", nameof(currency));
+                throw new DomainValidationException(DomainErrorCodes.InvalidCurrency, "Para birimi geçersiz!");
 
             Amount = amount;
             Currency = currency;
@@ -25,14 +23,14 @@ namespace PSP.DOMAIN.Models
         public Money Add(Money other)
         {
             if (Currency != other.Currency)
-                throw new ArgumentException("Para birimleri eşleşmiyor!", nameof(other));
+                throw new DomainValidationException(DomainErrorCodes.CurrencyMismatch, "Para birimleri eşleşmiyor!");
 
             return new Money(checked(Amount + other.Amount), Currency);
         }
         public Money Subtract(Money other)
         {
             if (Currency != other.Currency)
-                throw new ArgumentException("Para birimleri eşleşmiyor!", nameof(other));
+                throw new DomainValidationException(DomainErrorCodes.CurrencyMismatch, "Para birimleri eşleşmiyor!");
 
             return new Money(checked(Amount - other.Amount), Currency);
         }
@@ -40,7 +38,7 @@ namespace PSP.DOMAIN.Models
         public bool IsGreaterThan(Money other)
         {
             if (Currency != other.Currency)
-                throw new ArgumentException("Para birimleri eşleşmiyor!", nameof(other));
+                throw new DomainValidationException(DomainErrorCodes.CurrencyMismatch, "Para birimleri eşleşmiyor!");
 
             return Amount > other.Amount;
         }
