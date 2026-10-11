@@ -1,3 +1,4 @@
+using PSP.API.ExceptionHandling;
 using PSP.APPLICATION;
 using PSP.INFRASTRUCTURE;
 
@@ -10,9 +11,10 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 var app = builder.Build();
-
+app.UseExceptionHandler();
 // Configure the HTTP request pipeline.
 
 app.MapOpenApi();
