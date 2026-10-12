@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using PSP.API.Authentication;
 using PSP.API.ExceptionHandling;
 using PSP.APPLICATION;
 using PSP.INFRASTRUCTURE;
@@ -13,21 +15,22 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 app.UseExceptionHandler();
-// Configure the HTTP request pipeline.
-
 app.MapOpenApi();
-
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/openapi/v1.json", "PSP API v1");
 });
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

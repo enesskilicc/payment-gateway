@@ -1,6 +1,26 @@
-@PSP.API_HostAddress = http://localhost:5183
+@host = http://localhost:5183
+@key = sk_test_38YhaNH8COkdnOINNVFbX9jkA5EOHAzO4eMLvQvCWes
 
-GET {{PSP.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Doğru key ile ödeme oluştur → 201
+POST {{host}}/api/payments
+Authorization: Bearer {{key}}
+Content-Type: application/json
 
-###
+{ "amount": 12060, "currency": "TRY" }
+
+### 2. Key yok → 401
+POST {{host}}/api/payments
+Content-Type: application/json
+
+{ "amount": 12060, "currency": "TRY" }
+
+### 3. Yanlış key → 401
+POST {{host}}/api/payments
+Authorization: Bearer sk_test_yanlis
+Content-Type: application/json
+
+{ "amount": 12060, "currency": "TRY" }
+
+### 4. 1. istekte dönen id ile oku → 200
+GET {{host}}/api/payments/1621e68c-9854-4b5d-8e7f-83b1a51515f6
+Authorization: Bearer {{key}}
