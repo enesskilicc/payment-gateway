@@ -48,5 +48,11 @@ namespace PSP.DOMAIN.Models
 
             Status = MerchantStatus.Deleted;
         }
+
+        public void EnsureActive()
+        {
+            if (Status != MerchantStatus.Active)
+                throw new DomainConflictException(DomainErrorCodes.MerchantNotActive,"Merchant aktif değil!");
+        }
     }
 }

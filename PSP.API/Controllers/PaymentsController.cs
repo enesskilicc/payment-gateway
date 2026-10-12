@@ -18,7 +18,6 @@ namespace PSP.API.Controllers
         }
 
         [HttpPost]
-        [Route("Create")]
         public async Task<IActionResult> Create([FromHeader(Name = "X-Merchant-Id")] Guid merchantId,CreatePaymentRequest request,CancellationToken cancellationToken)
         {
             var response = await _paymentService.CreateAsync(merchantId,request,cancellationToken);

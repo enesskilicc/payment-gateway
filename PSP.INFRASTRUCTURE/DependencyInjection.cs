@@ -20,6 +20,9 @@ namespace PSP.INFRASTRUCTURE
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PspDbContext>());
 
+            services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
+            services.AddScoped<IMerchantRepository, MerchantRepository>();
+
             return services;
         }
     }

@@ -36,10 +36,9 @@ namespace PSP.DOMAIN.Models
         {
             byte[] randomBytes = RandomNumberGenerator.GetBytes(32);
             string plainKey = "sk_test_" + Base64Url.EncodeToString(randomBytes);
-            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(plainKey));
-            string keyHash = Convert.ToHexString(hashBytes);
+            var hash = ComputeHash(plainKey);
             string prefix = plainKey.Substring(0, 12);
-            var apiKey = new ApiKey(merchantId, keyHash, prefix);
+            var apiKey = new ApiKey(merchantId, hash, prefix);
             return (apiKey, plainKey);
         }
 
@@ -48,10 +47,16 @@ namespace PSP.DOMAIN.Models
             if (string.IsNullOrEmpty(candidateKey) || RevokedAt is not null)
                 return false;
 
-            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(candidateKey));
-            string keyHash = Convert.ToHexString(hashBytes);
+            var hash = ComputeHash(candidateKey);
 
-            return CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(keyHash), Encoding.UTF8.GetBytes(KeyHash));
+            return CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(hash), Encoding.UTF8.GetBytes(KeyHash));
+        }
+
+        public static string ComputeHash(string plainKey)
+        {
+            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(plainKey));
+            string keyHash = Convert.ToHexString(hashBytes);
+            return keyHash;
         }
 
     }
