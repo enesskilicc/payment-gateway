@@ -26,5 +26,10 @@ namespace PSP.INFRASTRUCTURE.Persistence.Repositories
         {
             return _context.ApiKeys.FirstOrDefaultAsync(x => x.KeyHash == keyHash, cancellationToken);
         }
+
+        public Task<ApiKey?> GetByIdAsync(Guid id, Guid merchantId, CancellationToken cancellationToken)
+        {
+            return _context.ApiKeys.FirstOrDefaultAsync(x=>x.Id == id && x.MerchantId == merchantId,cancellationToken);
+        }
     }
 }

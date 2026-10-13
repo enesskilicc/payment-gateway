@@ -15,14 +15,24 @@ namespace PSP.API.Controllers
             _apiKeyService = apiKeyService;
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Guid merchantId,CancellationToken cancellationToken)
+        public async Task<IActionResult> Create(Guid merchantId, CancellationToken cancellationToken)
         {
-            var apiKey = await _apiKeyService.CreateAsync(merchantId,cancellationToken);
+            var apiKey = await _apiKeyService.CreateAsync(merchantId, cancellationToken);
 
             if (apiKey is null)
                 return NotFound();
 
-            return StatusCode(201,apiKey);
+            return StatusCode(201, apiKey);
+        }
+        [HttpDelete("{keyId:guid}")]
+        public async Task<IActionResult> Revoke(Guid merchantId, Guid keyId, CancellationToken cancellationToken)
+        {
+            var result = await _apiKeyService.RevokeAsync(keyId, merchantId, cancellationToken);
+
+            if (!result)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

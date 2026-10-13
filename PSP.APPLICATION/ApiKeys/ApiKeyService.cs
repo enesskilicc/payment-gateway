@@ -34,5 +34,18 @@ namespace PSP.APPLICATION.ApiKeys
 
             return new CreateApiKeyResponse(apiKey.Id, plainKey, apiKey.Prefix, apiKey.CreatedAt);
         }
+
+        public async Task<bool> RevokeAsync(Guid keyId, Guid merchantId, CancellationToken cancellationToken)
+        {
+            var apiKey = await _apiKeyRepository.GetByIdAsync(keyId,merchantId,cancellationToken);
+
+            if (apiKey is null)
+                return false;
+
+            apiKey.Revoke();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return true;
+        }
     }
 }

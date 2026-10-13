@@ -1,5 +1,5 @@
-@host = http://localhost:5183
-@key = sk_test_38YhaNH8COkdnOINNVFbX9jkA5EOHAzO4eMLvQvCWes
+@host = https://localhost:7054
+@key = sk_test_pAmQR35r9HigWeGrYZGgEe8ZKeozdwSVXV93ifnlyuI
 
 ### 1. Doğru key ile ödeme oluştur → 201
 POST {{host}}/api/payments
