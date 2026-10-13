@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PSP.APPLICATION.Abstractions;
 using PSP.INFRASTRUCTURE.Persistence;
 using PSP.INFRASTRUCTURE.Persistence.Repositories;
+using PSP.INFRASTRUCTURE.Processing;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +23,8 @@ namespace PSP.INFRASTRUCTURE
 
             services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
             services.AddScoped<IMerchantRepository, MerchantRepository>();
+
+            services.AddScoped<IPaymentProcessor, FakePaymentProcessor>();
 
             return services;
         }

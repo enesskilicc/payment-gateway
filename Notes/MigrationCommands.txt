@@ -1,0 +1,5 @@
+#CREATE MIGRATION
+dotnet ef migrations add AddMerchantOrderIdToPayments --project PSP.INFRASTRUCTURE --startup-project PSP.API
+
+#APPLY MIGRATION
+dotnet ef database update --project PSP.INFRASTRUCTURE --startup-project PSP.API

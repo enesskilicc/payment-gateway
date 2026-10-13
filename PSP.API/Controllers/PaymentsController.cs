@@ -37,5 +37,17 @@ namespace PSP.API.Controllers
 
             return Ok(response);
         }
+
+        [HttpPost("{id:guid}/confirm")]
+        public async Task<IActionResult> Confirm(Guid id,CancellationToken cancellationToken)
+        {
+            var merchantId = User.GetMerchantId();
+            var response = await _paymentService.ConfirmAsync(id,merchantId,cancellationToken);
+
+            if (response is null)
+                return NotFound();
+
+            return Ok(response);
+        }
     }
 }

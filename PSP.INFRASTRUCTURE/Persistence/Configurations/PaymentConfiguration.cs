@@ -11,6 +11,9 @@ namespace PSP.INFRASTRUCTURE.Persistence.Configurations
             builder.ToTable("payments");
             builder.HasKey(x => x.Id);
 
+            builder.HasIndex(x => x.MerchantId);
+            builder.HasIndex(x => x.MerchantOrderId);
+
             builder.OwnsOne(x => x.Amount, money =>
             {
                 money.Property(x => x.Amount)
@@ -54,6 +57,10 @@ namespace PSP.INFRASTRUCTURE.Persistence.Configurations
                 .WithMany()
                 .HasForeignKey(x => x.MerchantId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.MerchantOrderId)
+                .HasMaxLength(50)
+                .IsRequired();
         }
     }
 }

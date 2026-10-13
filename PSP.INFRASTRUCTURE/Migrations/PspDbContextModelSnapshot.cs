@@ -110,6 +110,12 @@ namespace PSP.INFRASTRUCTURE.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("merchant_id");
 
+                    b.Property<string>("MerchantOrderId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("merchant_order_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -121,6 +127,9 @@ namespace PSP.INFRASTRUCTURE.Migrations
 
                     b.HasIndex("MerchantId")
                         .HasDatabaseName("ix_payments_merchant_id");
+
+                    b.HasIndex("MerchantOrderId")
+                        .HasDatabaseName("ix_payments_merchant_order_id");
 
                     b.ToTable("payments", (string)null);
                 });

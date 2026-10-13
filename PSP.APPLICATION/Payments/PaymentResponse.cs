@@ -8,6 +8,7 @@ namespace PSP.APPLICATION.Payments
     long RefundedAmount,
     string Currency,
     string Status,
+    string MerchantOrderId,
     DateTimeOffset CreatedAt)
     {
         public static PaymentResponse FromDomain(Payment payment)
@@ -19,6 +20,7 @@ namespace PSP.APPLICATION.Payments
                 payment.RefundedAmount.Amount,
                 payment.Amount.Currency,
                 payment.Status.ToString(),
+                payment.MerchantOrderId,
                 payment.CreatedAt
                 );
         }
